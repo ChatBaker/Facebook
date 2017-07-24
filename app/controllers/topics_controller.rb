@@ -1,4 +1,5 @@
 class TopicsController < ApplicationController
+  before_action :authenticate_user!
   before_action :set_topic, only: [:show, :edit, :update, :destroy]
 
   # GET /topics
@@ -25,11 +26,12 @@ class TopicsController < ApplicationController
   # POST /topics.json
   def create
     @topic = Topic.new(topic_params)
-
+    @topic.user_id = current_user.id
     respond_to do |format|
       if @topic.save
-        format.html { redirect_to @topic, notice: 'Topic was successfully created.' }
+        format.html { redirect_to @topic, notice: 'Topicの投稿に成功しましたよ' }
         format.json { render :show, status: :created, location: @topic }
+        NoticeMailer.sendmail_topic(@topic).deliver
       else
         format.html { render :new }
         format.json { render json: @topic.errors, status: :unprocessable_entity }
@@ -42,7 +44,7 @@ class TopicsController < ApplicationController
   def update
     respond_to do |format|
       if @topic.update(topic_params)
-        format.html { redirect_to @topic, notice: 'Topic was successfully updated.' }
+        format.html { redirect_to @topic, notice: 'Topicの更新が成功しました' }
         format.json { render :show, status: :ok, location: @topic }
       else
         format.html { render :edit }
@@ -56,7 +58,7 @@ class TopicsController < ApplicationController
   def destroy
     @topic.destroy
     respond_to do |format|
-      format.html { redirect_to topics_url, notice: 'Topic was successfully destroyed.' }
+      format.html { redirect_to topics_url, notice: 'Topicの削除に成功しました' }
       format.json { head :no_content }
     end
   end
