@@ -1,9 +1,19 @@
 Rails.application.routes.draw do
+  resources :users, only: [:index]
+  resources :relationships, only: [:create, :destroy]
+
+  resources :conversations do
+   resources :messages
+  end
+
   devise_for :users, controllers: {
     registrations: "users/registrations",
     omniauth_callbacks: "users/omniauth_callbacks"
   }
-  resources :topics
+  resources :topics do
+   resources :comments
+   post :confirm, on: :collection
+ end
   root 'top#index'
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
